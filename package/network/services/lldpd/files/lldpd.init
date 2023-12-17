@@ -46,6 +46,7 @@ get_config_restart_hash() {
 	config_get_bool v 'config' 'force_cdpv2'; append _string "$v" ","
 	config_get_bool v 'config' 'enable_edp'; append _string "$v" ","
 	config_get_bool v 'config' 'enable_fdp'; append _string "$v" ","
+	config_get_bool v 'config' 'force_fdp'; append _string "$v" ","
 	config_get_bool v 'config' 'enable_sonmp'; append _string "$v" ","
 
 	_hash=`echo -n "${_string}" | md5sum | awk '{ print \$1 }'`
@@ -136,6 +137,7 @@ start_service() {
 	local force_cdp
 	local force_cdpv2
 	local enable_fdp
+	local force_fdp
 	local enable_sonmp
 	local enable_edp
 	local lldp_class
@@ -154,6 +156,7 @@ start_service() {
 	config_get_bool force_cdp 'config' 'force_cdp' 0
 	config_get_bool force_cdpv2 'config' 'force_cdpv2' 0
 	config_get_bool enable_fdp 'config' 'enable_fdp' 0
+	config_get_bool force_fdp 'config' 'force_fdp' 0
 	config_get_bool enable_sonmp 'config' 'enable_sonmp' 0
 	config_get_bool enable_edp 'config' 'enable_edp' 0
 	config_get lldp_class 'config' 'lldp_class'
@@ -206,7 +209,14 @@ start_service() {
 		fi
 	fi
 
-	[ $enable_fdp -gt 0 ] && procd_append_param command '-f'
+	if [ $enable_fdp -gt 0 ] && [ $force_fdp -gt 0 ]; then
+		# FDP enbled and forced
+		procd_append_param command '-ff'
+	elif [ $enable_fdp -gt 0 ]; then
+		# FDP enabled
+		procd_append_param command '-f'
+	fi
+
 	[ $enable_sonmp -gt 0 ] && procd_append_param command '-s'
 	[ $enable_edp -gt 0 ] && procd_append_param command '-e'
 	[ $readonly_mode -gt 0 ] && procd_append_param command '-r'
