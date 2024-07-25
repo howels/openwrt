@@ -1441,9 +1441,9 @@ static void rtl838x_mac_config(struct phylink_config *config,
 	pr_info("In %s, mode %x\n", __func__, mode);
 }
 
-static void rtl838x_mac_an_restart(struct phylink_config *config)
+static void rtl838x_mac_an_restart(struct phylink_pcs *pcs)
 {
-	struct net_device *dev = container_of(config->dev, struct net_device, dev);
+	struct net_device *dev = container_of(pcs->config->dev, struct net_device, dev);
 	struct rtl838x_eth_priv *priv = netdev_priv(dev);
 
 	/* This works only on RTL838x chips */
@@ -1457,11 +1457,11 @@ static void rtl838x_mac_an_restart(struct phylink_config *config)
 	sw_w32(0x6192F, priv->r->mac_force_mode_ctrl + priv->cpu_port * 4);
 }
 
-static void rtl838x_mac_pcs_get_state(struct phylink_config *config,
+static void rtl838x_mac_pcs_get_state(struct phylink_pcs *pcs,
 				  struct phylink_link_state *state)
 {
 	u32 speed;
-	struct net_device *dev = container_of(config->dev, struct net_device, dev);
+	struct net_device *dev = container_of(pcs->config->dev, struct net_device, dev);
 	struct rtl838x_eth_priv *priv = netdev_priv(dev);
 	int port = priv->cpu_port;
 
@@ -2158,7 +2158,6 @@ static int rtl838x_mdio_init(struct rtl838x_eth_priv *priv)
 		priv->mii_bus->write = rtl930x_mdio_write;
 		priv->mii_bus->write_paged = rtl930x_mdio_write_paged;
 		priv->mii_bus->reset = rtl930x_mdio_reset;
-		priv->mii_bus->probe_capabilities = MDIOBUS_C22_C45;
 		break;
 	case RTL9310_FAMILY_ID:
 		priv->mii_bus->name = "rtl931x-eth-mdio";
@@ -2167,7 +2166,6 @@ static int rtl838x_mdio_init(struct rtl838x_eth_priv *priv)
 		priv->mii_bus->write = rtl931x_mdio_write;
 		priv->mii_bus->write_paged = rtl931x_mdio_write_paged;
 		priv->mii_bus->reset = rtl931x_mdio_reset;
-		priv->mii_bus->probe_capabilities = MDIOBUS_C22_C45;
 		break;
 	}
 	priv->mii_bus->access_capabilities = MDIOBUS_ACCESS_C22_MMD;
@@ -2335,11 +2333,14 @@ static const struct net_device_ops rtl931x_eth_netdev_ops = {
 
 static const struct phylink_mac_ops rtl838x_phylink_ops = {
 	.validate = rtl838x_validate,
-	.mac_pcs_get_state = rtl838x_mac_pcs_get_state,
-	.mac_an_restart = rtl838x_mac_an_restart,
 	.mac_config = rtl838x_mac_config,
 	.mac_link_down = rtl838x_mac_link_down,
 	.mac_link_up = rtl838x_mac_link_up,
+};
+
+static struct phylink_pcs_ops rtl838x_pcs_ops = {
+	.pcs_get_state = rtl838x_mac_pcs_get_state,
+	.pcs_an_restart = rtl838x_mac_an_restart,
 };
 
 static const struct ethtool_ops rtl838x_ethtool_ops = {
@@ -2521,7 +2522,7 @@ static int __init rtl838x_eth_probe(struct platform_device *pdev)
 	for (int i = 0; i < priv->rxrings; i++) {
 		priv->rx_qs[i].id = i;
 		priv->rx_qs[i].priv = priv;
-		netif_napi_add(dev, &priv->rx_qs[i].napi, rtl838x_poll_rx, 64);
+		netif_napi_add(dev, &priv->rx_qs[i].napi, rtl838x_poll_rx);
 	}
 
 	platform_set_drvdata(pdev, dev);
