@@ -1441,67 +1441,67 @@ static void rtl838x_mac_config(struct phylink_config *config,
 	pr_info("In %s, mode %x\n", __func__, mode);
 }
 
-static void rtl838x_mac_an_restart(struct phylink_pcs *pcs)
-{
-	struct net_device *dev = container_of(pcs->config->dev, struct net_device, dev);
-	struct rtl838x_eth_priv *priv = netdev_priv(dev);
+// static void rtl838x_mac_an_restart(struct phylink_pcs *pcs)
+// {
+// 	struct net_device *dev = container_of(pcs->phylink->dev, struct net_device, dev);
+// 	struct rtl838x_eth_priv *priv = netdev_priv(dev);
 
-	/* This works only on RTL838x chips */
-	if (priv->family_id != RTL8380_FAMILY_ID)
-		return;
+// 	/* This works only on RTL838x chips */
+// 	if (priv->family_id != RTL8380_FAMILY_ID)
+// 		return;
 
-	pr_debug("In %s\n", __func__);
-	/* Restart by disabling and re-enabling link */
-	sw_w32(0x6192D, priv->r->mac_force_mode_ctrl + priv->cpu_port * 4);
-	mdelay(20);
-	sw_w32(0x6192F, priv->r->mac_force_mode_ctrl + priv->cpu_port * 4);
-}
+// 	pr_debug("In %s\n", __func__);
+// 	/* Restart by disabling and re-enabling link */
+// 	sw_w32(0x6192D, priv->r->mac_force_mode_ctrl + priv->cpu_port * 4);
+// 	mdelay(20);
+// 	sw_w32(0x6192F, priv->r->mac_force_mode_ctrl + priv->cpu_port * 4);
+// }
 
-static void rtl838x_mac_pcs_get_state(struct phylink_pcs *pcs,
-				  struct phylink_link_state *state)
-{
-	u32 speed;
-	struct net_device *dev = container_of(pcs->config->dev, struct net_device, dev);
-	struct rtl838x_eth_priv *priv = netdev_priv(dev);
-	int port = priv->cpu_port;
+// static void rtl838x_mac_pcs_get_state(struct phylink_pcs *pcs,
+// 				  struct phylink_link_state *state)
+// {
+// 	u32 speed;
+// 	struct net_device *dev = container_of(pcs->phylink->dev, struct net_device, dev);
+// 	struct rtl838x_eth_priv *priv = netdev_priv(dev);
+// 	int port = priv->cpu_port;
 
-	pr_info("In %s\n", __func__);
+// 	pr_info("In %s\n", __func__);
 
-	state->link = priv->r->get_mac_link_sts(port) ? 1 : 0;
-	state->duplex = priv->r->get_mac_link_dup_sts(port) ? 1 : 0;
+// 	state->link = priv->r->get_mac_link_sts(port) ? 1 : 0;
+// 	state->duplex = priv->r->get_mac_link_dup_sts(port) ? 1 : 0;
 
-	pr_info("%s link status is %d\n", __func__, state->link);
-	speed = priv->r->get_mac_link_spd_sts(port);
-	switch (speed) {
-	case 0:
-		state->speed = SPEED_10;
-		break;
-	case 1:
-		state->speed = SPEED_100;
-		break;
-	case 2:
-		state->speed = SPEED_1000;
-		break;
-	case 5:
-		state->speed = SPEED_2500;
-		break;
-	case 6:
-		state->speed = SPEED_5000;
-		break;
-	case 4:
-		state->speed = SPEED_10000;
-		break;
-	default:
-		state->speed = SPEED_UNKNOWN;
-		break;
-	}
+// 	pr_info("%s link status is %d\n", __func__, state->link);
+// 	speed = priv->r->get_mac_link_spd_sts(port);
+// 	switch (speed) {
+// 	case 0:
+// 		state->speed = SPEED_10;
+// 		break;
+// 	case 1:
+// 		state->speed = SPEED_100;
+// 		break;
+// 	case 2:
+// 		state->speed = SPEED_1000;
+// 		break;
+// 	case 5:
+// 		state->speed = SPEED_2500;
+// 		break;
+// 	case 6:
+// 		state->speed = SPEED_5000;
+// 		break;
+// 	case 4:
+// 		state->speed = SPEED_10000;
+// 		break;
+// 	default:
+// 		state->speed = SPEED_UNKNOWN;
+// 		break;
+// 	}
 
-	state->pause &= (MLO_PAUSE_RX | MLO_PAUSE_TX);
-	if (priv->r->get_mac_rx_pause_sts(port))
-		state->pause |= MLO_PAUSE_RX;
-	if (priv->r->get_mac_tx_pause_sts(port))
-		state->pause |= MLO_PAUSE_TX;
-}
+// 	state->pause &= (MLO_PAUSE_RX | MLO_PAUSE_TX);
+// 	if (priv->r->get_mac_rx_pause_sts(port))
+// 		state->pause |= MLO_PAUSE_RX;
+// 	if (priv->r->get_mac_tx_pause_sts(port))
+// 		state->pause |= MLO_PAUSE_TX;
+// }
 
 static void rtl838x_mac_link_down(struct phylink_config *config,
 				  unsigned int mode,
@@ -2339,8 +2339,8 @@ static const struct phylink_mac_ops rtl838x_phylink_ops = {
 };
 
 static struct phylink_pcs_ops rtl838x_pcs_ops = {
-	.pcs_get_state = rtl838x_mac_pcs_get_state,
-	.pcs_an_restart = rtl838x_mac_an_restart,
+// 	.pcs_get_state = rtl838x_mac_pcs_get_state,
+// 	.pcs_an_restart = rtl838x_mac_an_restart,
 };
 
 static const struct ethtool_ops rtl838x_ethtool_ops = {
