@@ -2338,10 +2338,11 @@ static const struct phylink_mac_ops rtl838x_phylink_ops = {
 	.mac_link_up = rtl838x_mac_link_up,
 };
 
-static struct phylink_pcs_ops rtl838x_pcs_ops = {
+struct phylink_pcs *pcs;
+//static struct phylink_pcs_ops rtl838x_pcs_ops = {
 // 	.pcs_get_state = rtl838x_mac_pcs_get_state,
 // 	.pcs_an_restart = rtl838x_mac_an_restart,
-};
+//};
 
 static const struct ethtool_ops rtl838x_ethtool_ops = {
 	.get_link_ksettings     = rtl838x_get_link_ksettings,
